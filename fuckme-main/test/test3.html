@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test CreateUserAPI</title>
+  <style>
+    body { font-family: sans-serif; max-width: 400px; margin: 2rem auto; }
+    label { display: block; margin-top: 1rem; }
+    input { width: 100%; padding: 0.5rem; margin-top: 0.25rem; }
+    button { margin-top: 1rem; padding: 0.5rem 1rem; }
+    pre { background: #f4f4f4; padding: 1rem; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>Create User</h1>
+  <form id="createUserForm">
+    <label>
+      First Name:
+      <input type="text" name="first_name" placeholder="Jane" required>
+    </label>
+    <label>
+      Last Name:
+      <input type="text" name="last_name" placeholder="Doe" required>
+    </label>
+    <label>
+      Phone Number (E.164):
+      <input type="text" name="phone_number" placeholder="+15551234567" required>
+    </label>
+    <label>
+      Password:
+      <input type="password" name="password" required>
+    </label>
+    <button type="submit">Create User</button>
+  </form>
+
+  <h2>Response</h2>
+  <pre id="responseOutput">—</pre>
+
+  <script>
+    const form = document.getElementById('createUserForm');
+    const output = document.getElementById('responseOutput');
+
+    // Your API endpoint:
+    const ENDPOINT = 'https://x01uhce1a5.execute-api.sa-east-1.amazonaws.com/CreateUserFunction';
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      output.textContent = 'Sending…';
+
+      const formData = new FormData(form);
+      const payload = {
+        first_name:  formData.get('first_name'),
+        last_name:   formData.get('last_name'),
+        phone_number: formData.get('phone_number'),
+        password:     formData.get('password')
+      };
+
+      try {
+        const res = await fetch(ENDPOINT, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const text = await res.text();
+        if (!res.ok) {
+          // show full error details if non-OK
+          output.textContent = `HTTP/${res.status} ${res.statusText}\n\n${text}`;
+          return;
+        }
+
+        // try parse JSON, else show raw
+        try {
+          const data = JSON.parse(text);
+          output.textContent = JSON.stringify(data, null, 2);
+        } catch {
+          output.textContent = text;
+        }
+      } catch (err) {
+        output.textContent = 'Fetch error: ' + err.message;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/shared.css">
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <div id="sidebar" class="sidebar bg-white shadow-md w-64 flex-shrink-0">
+            <div class="p-4 border-b border-gray-200">
+                <h1 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-project-diagram text-green-500 mr-2"></i>
+                    Cradle
+                </h1>
+            </div>
+            <nav class="p-4">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="index.html" class="flex items-center p-2 text-gray-700 rounded-lg hover:bg-green-50 group">
+                            <i class="fas fa-home text-green-500 mr-3"></i>
+                            <span class="font-medium">My Projects</span>
+                        </a>
+                    </li>
+                    <li id="dashboard-nav" style="display:none">
+                        <a href="dashboard.html" class="flex items-center p-2 text-gray-700 rounded-lg hover:bg-green-50 group">
+                            <i class="fas fa-bars text-green-500 mr-3"></i>
+                            <span class="font-medium">Task Management</span>
+                        </a>
+                    </li>
+                    <li id="settings-nav" style="display:none">
+                        <a href="settings.html" class="flex items-center p-2 text-gray-700 rounded-lg hover:bg-green-50 group">
+                            <i class="fas fa-users text-green-500 mr-3"></i>
+                            <span class="font-medium">User Management</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="absolute bottom-0 left-0 w-64 p-4 border-t border-gray-200">
+                <div class="flex items-center">
+                    <div class="ml-3">
+                        <p id="user-fullname" class="font-medium text-gray-700"></p>
+                        <p id="user-group" class="text-sm text-gray-500">operator</p>
+                        <!-- Log Out Button -->
+                        <button id="logoutBtn" class="mt-4 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors flex items-center justify-center mx-auto w-40">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Log Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content flex-1 flex flex-col overflow-hidden">
+            <!-- Top Bar -->
+            <header class="bg-white shadow-sm py-4 px-6 flex items-center justify-between">
+                <button id="menu-toggle" class="md:hidden text-gray-500 focus:outline-none">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <h2 class="text-xl font-semibold text-gray-800">Project Dashboard</h2>
+                <div class="flex items-center space-x-4">
+                    <!-- Removed Add Task button -->
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <main class="flex-1 overflow-y-auto p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Pending Column -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-yellow-50 px-4 py-3 border-b border-gray-200">
+                            <h3 class="font-semibold text-gray-700 flex items-center">
+                                <span class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>
+                                Pending
+                                <span class="ml-auto bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full" id="pending-count"></span>
+                            </h3>
+                        </div>
+                        <div class="p-4 space-y-4" id="pending-tasks">
+                            <!-- Dynamic Pending Tasks -->
+                        </div>
+                    </div>
+
+                    <!-- Assigned Column -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-blue-50 px-4 py-3 border-b border-gray-200">
+                            <h3 class="font-semibold text-gray-700 flex items-center">
+                                <span class="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
+                                Assigned
+                                <span class="ml-auto bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full" id="assigned-count"></span>
+                            </h3>
+                        </div>
+                        <div class="p-4 space-y-4" id="assigned-tasks">
+                            <!-- Dynamic Assigned Tasks -->
+                        </div>
+                    </div>
+
+                    <!-- Completed Column -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-green-50 px-4 py-3 border-b border-gray-200">
+                            <h3 class="font-semibold text-gray-700 flex items-center">
+                                <span class="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
+                                Completed
+                                <span class="ml-auto bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full" id="completed-count"></span>
+                            </h3>
+                        </div>
+                        <div class="p-4 space-y-4" id="completed-tasks">
+                            <!-- Dynamic Completed Tasks -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Removed Add Task Modal and related logic -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aws-sdk/2.1413.0/aws-sdk.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.0.0/dist/amazon-cognito-identity.min.js"></script>
+    <script type="module">
+    import { signOut } from "./assets/js/cognito-auth.js";
+    const idToken = localStorage.getItem("idToken");
+    function tokenExpired(token) {
+      if (!token) return true;
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return Date.now() / 1000 > payload.exp;
+      } catch {
+        return true;
+      }
+    }
+    if (tokenExpired(idToken)) {
+      signOut();
+      window.location.replace("auth/login.html");
+    }
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        signOut();
+        window.location.replace("auth/login.html");
+      });
+    }
+    // Set user info from Cognito token
+    if (idToken) {
+      try {
+        const payload = JSON.parse(atob(idToken.split('.')[1]));
+        const firstName = payload.given_name || '';
+        const lastName = payload.family_name || '';
+        const groups = payload["cognito:groups"] || [];
+        const group = Array.isArray(groups) && groups.length > 0 ? groups[0] : '';
+        const fullName = (firstName + ' ' + lastName).trim() || (payload.name || '');
+        if (fullName) {
+          document.getElementById('user-fullname').textContent = fullName;
+        }
+        if (group) {
+          document.getElementById('user-group').textContent = group;
+        }
+        // Show Dashboard and Settings buttons only for admin
+        if (Array.isArray(groups) && groups.includes('admin')) {
+          document.getElementById('dashboard-nav').style.display = '';
+          document.getElementById('settings-nav').style.display = '';
+        }
+      } catch {}
+    }
+    </script>
+    <script>
+        // Toggle sidebar on mobile
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('sidebar-open');
+        });
+        // --- Dynamic Task Fetch & Render ---
+        async function fetchAndRenderTasks() {
+            const idToken = localStorage.getItem("idToken");
+            if (!idToken) return;
+            let phoneNumber = null;
+            let isAdmin = false;
+            try {
+                const payload = JSON.parse(atob(idToken.split('.')[1]));
+                phoneNumber = payload.phone_number || payload["cognito:username"] || localStorage.getItem("phone_number");
+                const groups = payload["cognito:groups"] || [];
+                isAdmin = Array.isArray(groups) && groups.includes("admin");
+            } catch {}
+            if (!phoneNumber) return;
+            try {
+                let res, data;
+                if (isAdmin) {
+                    // Admins use QueryAllFunction endpoint (dashboard.html logic)
+                    res = await fetch("https://jbfwckcqza.execute-api.us-east-1.amazonaws.com/QueryAllFunction", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ ownerId: phoneNumber })
+                    });
+                } else {
+                    // Non-admins use the original endpoint
+                    res = await fetch("https://qhvvm8l6f3.execute-api.us-east-1.amazonaws.com/tasks", {
+                        method: "GET",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ ownerId: phoneNumber })
+                    });
+                }
+                data = await res.json();
+                if (!Array.isArray(data)) return;
+                const pending = [], assigned = [], completed = [];
+                data.forEach(task => {
+                    const status = (task.status || '').toLowerCase();
+                    if (status === 'completed') completed.push(task);
+                    else if (status === 'assigned') assigned.push(task);
+                    else pending.push(task);
+                });
+                renderTaskColumn('pending-tasks', pending);
+                renderTaskColumn('assigned-tasks', assigned);
+                renderTaskColumn('completed-tasks', completed, true);
+                document.getElementById('pending-count').textContent = pending.length + ' tasks';
+                document.getElementById('assigned-count').textContent = assigned.length + ' tasks';
+                document.getElementById('completed-count').textContent = completed.length + ' tasks';
+            } catch (err) {}
+        }
+        function renderTaskColumn(containerId, tasks, completed = false) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            if (!tasks.length) {
+                container.innerHTML = '<div class="text-gray-400 text-center">No tasks</div>';
+                return;
+            }
+            tasks.forEach(task => {
+                const status = (task.status || '').toLowerCase();
+                let statusColor = 'bg-gray-300 text-gray-700';
+                if (status === 'pending') statusColor = 'bg-yellow-100 text-yellow-800';
+                else if (status === 'assigned' || status === 'in progress') statusColor = 'bg-blue-100 text-blue-800';
+                else if (status === 'completed') statusColor = 'bg-green-100 text-green-800';
+                else if (status === 'cancelled') statusColor = 'bg-red-100 text-red-800';
+                const card = document.createElement('div');
+                card.className = `task-card bg-white p-4 rounded-lg border border-gray-200 hover:border-${completed ? 'gray' : (containerId==='inprogress-tasks'?'yellow':'green')}-300 cursor-pointer${completed ? ' opacity-70' : ''}`;
+                card.innerHTML = `
+                  <div class="flex justify-between items-start mb-2">
+                    <h4 class="font-medium text-gray-800${completed ? ' line-through' : ''}"><i class='fas fa-clipboard-list mr-2 text-green-500'></i>${task.ownerId || 'Untitled Task'}</h4>
+                    <span class="text-xs px-2 py-1 rounded ${statusColor} capitalize">${status || 'pending'}</span>
+                  </div>
+                  <div class="flex flex-wrap gap-2 text-xs mb-2">
+                    <span class="inline-flex items-center bg-green-50 text-green-800 px-2 py-0.5 rounded"><i class='fas fa-user mr-1'></i>Farmer: ${task.farmer || '-'}</span>
+                    <span class="inline-flex items-center bg-purple-50 text-purple-800 px-2 py-0.5 rounded"><i class='fas fa-tractor mr-1'></i>Coop: ${task.cooperative || '-'}</span>
+                    <span class="inline-flex items-center bg-yellow-50 text-yellow-800 px-2 py-0.5 rounded"><i class='fas fa-ruler-combined mr-1'></i>Acres: ${task.acres ?? '-'}</span>
+                    <span class="inline-flex items-center bg-blue-50 text-blue-800 px-2 py-0.5 rounded"><i class='fas fa-dollar-sign mr-1'></i>Estimate: ${task.estimate || '-'}</span>
+                  </div>
+                  <div class="flex flex-wrap gap-2 text-xs mb-2">
+                    <span class="inline-flex items-center bg-gray-50 text-gray-800 px-2 py-0.5 rounded"><i class='fas fa-clock mr-1'></i>Created: ${task.dateCreated ? (new Date(task.dateCreated).toLocaleDateString()) : '-'}</span>
+                    <span class="inline-flex items-center bg-gray-50 text-gray-800 px-2 py-0.5 rounded"><i class='fas fa-calendar-alt mr-1'></i>Range: ${task.serviceDateRange || '-'}</span>
+                    <span class="inline-flex items-center bg-gray-50 text-gray-800 px-2 py-0.5 rounded"><i class='fas fa-calendar-day mr-1'></i>Date: ${task.specificDate ? (new Date(task.specificDate).toLocaleDateString()) : '-'}</span>
+                  </div>
+                  <div class="flex flex-wrap gap-2 text-xs mb-2">
+                     <span class="inline-flex items-center bg-gray-50 text-gray-800 px-2 py-0.5 rounded"><i class='fas fa-hashtag mr-1'></i>ID: ${task.taskId || '-'}</span>
+                  </div>
+                  ${task.notes ? `<div class='text-xs text-gray-600 mt-2'><i class='fas fa-sticky-note mr-1'></i>${task.notes}</div>` : ''}
+                `;
+                container.appendChild(card);
+            });
+        }
+        fetchAndRenderTasks();
+    </script>
+</body>
+</html>

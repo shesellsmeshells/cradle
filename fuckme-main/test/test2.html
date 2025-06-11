@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DynamoDB POST Query Viewer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    #error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>DynamoDB POST Query Viewer</h1>
+  
+  <label for="pk">Enter Partition Key:</label>
+  <input type="text" id="pk" placeholder="e.g. user123" />
+  <button onclick="queryData()">Query</button>
+
+  <p id="error"></p>
+  <table id="results" style="display:none;">
+    <thead>
+      <tr id="table-header"></tr>
+    </thead>
+    <tbody id="table-body"></tbody>
+  </table>
+
+  <script>
+    const API_URL = "https://1gykru3hb6.execute-api.sa-east-1.amazonaws.com/items"; // Replace with your POST endpoint
+
+    async function queryData() {
+      const pk = document.getElementById("pk").value;
+      const errorEl = document.getElementById("error");
+      const table = document.getElementById("results");
+      const headerRow = document.getElementById("table-header");
+      const tableBody = document.getElementById("table-body");
+
+      errorEl.textContent = '';
+      table.style.display = 'none';
+      headerRow.innerHTML = '';
+      tableBody.innerHTML = '';
+
+      if (!pk) {
+        errorEl.textContent = "Please enter a partition key.";
+        return;
+      }
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ ownerId: pk })  // Send as JSON in POST body
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          errorEl.textContent = data.message || "Error querying data.";
+          return;
+        }
+
+        if (!Array.isArray(data) || data.length === 0) {
+          errorEl.textContent = "No results found.";
+          return;
+        }
+
+        const keys = Object.keys(data[0]);
+
+        // Populate table header
+        keys.forEach(key => {
+          const th = document.createElement("th");
+          th.textContent = key;
+          headerRow.appendChild(th);
+        });
+
+        // Populate table rows
+        data.forEach(item => {
+          const row = document.createElement("tr");
+          keys.forEach(key => {
+            const td = document.createElement("td");
+            td.textContent = item[key];
+            row.appendChild(td);
+          });
+          tableBody.appendChild(row);
+        });
+
+        table.style.display = 'table';
+      } catch (error) {
+        console.error(error);
+        errorEl.textContent = "Request failed. Check console for details.";
+      }
+    }
+  </script>
+
+</body>
+</html>

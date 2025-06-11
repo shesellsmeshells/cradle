@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create Task</title>
+</head>
+<body>
+  <h2>Create Task</h2>
+  <button onclick="createTask()">Create Task</button>
+
+  <pre id="response"></pre>
+
+  <script>
+    async function createTask() {
+      const task = {
+        ownerId: 'user-xyz789',                 // required
+        farmer: 'user-abc223',                  // required
+        acres: 120,                             // required
+        estimate: '3 days of work',             // required
+        serviceDateRange: 'next_week',          // must be one of ['this_week', 'next_week', 'in_2_weeks']
+        specificDate: '2025-06-10T00:00:00Z',   // optional
+        status: 'pending',                      // optional, defaults to 'pending' must be one of ['pending', 'assigned', 'completed', 'cancelled']
+        cooperative: 'AgriCoop Midwest',        // required
+        sector: 'wheat',                        // required
+        notes: 'Farmer prefers morning slots'   // optional
+      };
+
+      try {
+        const response = await fetch('https://tv78v1f6t9.execute-api.sa-east-1.amazonaws.com/CreateTaskFunction', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(task)
+        });
+
+        const data = await response.json();
+        document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        document.getElementById('response').textContent = 'Error: ' + error;
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/shared.css">
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <div id="sidebar" class="sidebar bg-white shadow-md w-64 flex-shrink-0">
+            <div class="p-4 border-b border-gray-200">
+                <h1 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-project-diagram text-green-500 mr-2"></i>
+                    Cradle
+                </h1>
+            </div>
+            <nav class="p-4">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="index.html" class="flex items-center p-2 text-gray-700 rounded-lg hover:bg-green-50 group">
+                            <i class="fas fa-home text-green-500 mr-3"></i>
+                            <span class="font-medium">My Projects</span>
+                        </a>
+                    </li>
+                    <li id="dashboard-nav">
+                        <a href="dashboard.html" class="flex items-center p-2 text-gray-700 rounded-lg hover:bg-green-50 group font-semibold">
+                            <i class="fas fa-bars text-green-500 mr-3"></i>
+                            <span class="font-medium">Task Management</span>
+                        </a>
+                    </li>
+                    <li id="settings-nav">
+                        <a href="settings.html" class="flex items-center p-2 text-gray-700 rounded-lg hover:bg-green-50 group">
+                            <i class="fas fa-users text-green-500 mr-3"></i>
+                            <span class="font-medium">User Management</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="absolute bottom-0 left-0 w-64 p-4 border-t border-gray-200">
+                <div class="flex items-center">
+                    <div class="ml-3">
+                        <p id="user-fullname" class="font-medium text-gray-700"></p>
+                        <p id="user-group" class="text-sm text-gray-500"></p>
+                        <button id="logoutBtn" class="mt-4 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors flex items-center justify-center mx-auto w-40">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Log Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Main Content -->
+        <div class="main-content flex-1 flex flex-col overflow-hidden">
+            <header class="bg-white shadow-sm py-4 px-6 flex items-center justify-between">
+                <button id="menu-toggle" class="md:hidden text-gray-500 focus:outline-none">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <h2 class="text-xl font-semibold text-gray-800">Task Management</h2>
+                <div class="flex items-center space-x-4">
+                    <button id="create-task-btn" class="create-user-btn bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center">
+                        <i class="fas fa-plus mr-2"></i>
+                        Create Task
+                    </button>
+                </div>
+            </header>
+            <main class="flex-1 overflow-y-auto p-6">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 flex flex-col items-center justify-center min-h-[300px]">
+                    <i class="fas fa-tasks text-4xl text-green-400 mb-4"></i>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Task Management</h3>
+                    <div id="task-list" class="w-full mt-6 space-y-4">
+                        <div class="text-center text-gray-500">Loading tasks...</div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <!-- Add Task Modal (hidden by default) -->
+    <div id="add-task-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-800">Add New Task</h3>
+            </div>
+            <div class="p-6">
+                <form id="add-task-form">
+                    <div class="flex space-x-4 mb-4">
+                        <div class="w-1/2">
+                            <label class="block text-gray-700 text-sm font-medium mb-2" for="ownerId">Operator #</label>
+                            <select id="ownerId" name="ownerId" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="">Loading...</option>
+                            </select>
+                        </div>
+                        <div class="w-1/2">
+                            <label class="block text-gray-700 text-sm font-medium mb-2" for="farmer">Farmer #</label>
+                            <input type="text" id="farmer" name="farmer" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Enter farmer ID">
+                        </div>
+                    </div>
+                    <div class="flex space-x-4 mb-4">
+                        <div class="w-1/2">
+                            <label for="acres" class="block text-gray-700 text-sm font-medium mb-2">Acres</label>
+                            <input type="number" id="acres" name="acres" required class="w-full px-3 py-2 border rounded-lg" placeholder="Enter acres">
+                        </div>
+                        <div class="w-1/2">
+                            <label for="rate" class="block text-gray-700 text-sm font-medium mb-2">Rate per Acre</label>
+                            <input type="number" step="0.01" id="rate" name="rate" value="145" required class="w-full px-3 py-2 border rounded-lg" placeholder="Enter rate">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="estimate" class="block text-gray-700 text-sm font-medium mb-2">Estimated Total</label>
+                        <input type="text" id="estimate" name="estimate" readonly class="w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-600">
+                    </div>
+                    <div class="flex space-x-4 mb-4">
+                        <div class="w-1/2">
+                            <label class="block text-gray-700 text-sm font-medium mb-2" for="serviceDateRange">Service Date Range</label>
+                            <select id="serviceDateRange" name="serviceDateRange" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="this_week">This Week</option>
+                                <option value="next_week">Next Week</option>
+                                <option value="in_2_weeks">In 2 Weeks</option>
+                            </select>
+                        </div>
+                        <div class="w-1/2">
+                            <label class="block text-gray-700 text-sm font-medium mb-2" for="specificDate">Specific Date (optional)</label>
+                            <input type="date" id="specificDate" name="specificDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                    </div>
+                    <div class="flex space-x-4 mb-4">
+                        <div class="w-1/2">
+                            <label class="block text-gray-700 text-sm font-medium mb-2" for="status">Status (optional)</label>
+                            <select id="status" name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="pending">Pending</option>
+                                <option value="assigned">Assigned</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="w-1/2">
+                            <label class="block text-gray-700 text-sm font-medium mb-2" for="cooperative">Cooperative</label>
+                            <input type="text" id="cooperative" name="cooperative" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Enter cooperative">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="notes">Notes (optional)</label>
+                        <textarea id="notes" name="notes" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Enter notes"></textarea>
+                    </div>
+                    <div id="add-task-response" class="mb-2 text-sm text-center"></div>
+                </form>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button id="cancel-task-btn" type="button" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50">Cancel</button>
+                <button id="submit-task-btn" type="button" class="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">Add Task</button>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aws-sdk/2.1413.0/aws-sdk.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.0.0/dist/amazon-cognito-identity.min.js"></script>
+    <script type="module">
+    import { signOut } from "./assets/js/cognito-auth.js";
+    const idToken = localStorage.getItem("idToken");
+    function tokenExpired(token) {
+      if (!token) return true;
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return Date.now() / 1000 > payload.exp;
+      } catch {
+        return true;
+      }
+    }
+    if (tokenExpired(idToken)) {
+      signOut();
+      window.location.replace("auth/login.html");
+    }
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        signOut();
+        window.location.replace("auth/login.html");
+      });
+    }
+    // Set user info from Cognito token
+    if (idToken) {
+      try {
+        const payload = JSON.parse(atob(idToken.split('.')[1]));
+        const firstName = payload.given_name || '';
+        const lastName = payload.family_name || '';
+        const groups = payload["cognito:groups"] || [];
+        const group = Array.isArray(groups) && groups.length > 0 ? groups[0] : '';
+        const fullName = (firstName + ' ' + lastName).trim() || (payload.name || '');
+        if (fullName) {
+          document.getElementById('user-fullname').textContent = fullName;
+        }
+        if (group) {
+          document.getElementById('user-group').textContent = group;
+        }
+      } catch {}
+    }
+    // Restrict access to admin users only
+    if (idToken) {
+      try {
+        const payload = JSON.parse(atob(idToken.split('.')[1]));
+        const groups = payload["cognito:groups"] || [];
+        if (!Array.isArray(groups) || !groups.includes("admin")) {
+          window.location.replace("index.html");
+        }
+      } catch {
+        window.location.replace("index.html");
+      }
+    }
+    </script>
+    <script>
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('sidebar-open');
+        });
+        // Modal logic for Create Task
+        const createTaskBtn = document.getElementById('create-task-btn');
+        const addTaskModal = document.getElementById('add-task-modal');
+        const cancelTaskBtn = document.getElementById('cancel-task-btn');
+        if (createTaskBtn && addTaskModal && cancelTaskBtn) {
+            createTaskBtn.addEventListener('click', function() {
+                addTaskModal.classList.remove('hidden');
+            });
+            cancelTaskBtn.addEventListener('click', function() {
+                addTaskModal.classList.add('hidden');
+            });
+            addTaskModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.add('hidden');
+                }
+            });
+        }
+        // Estimate calculation logic (from index.html)
+        function calculateEstimate() {
+            const acres = parseFloat(document.getElementById('acres').value);
+            const rate = parseFloat(document.getElementById('rate').value);
+            const estimateField = document.getElementById('estimate');
+            if (!isNaN(acres) && !isNaN(rate)) {
+                const estimate = (acres * rate).toFixed(2);
+                estimateField.value = `$${estimate}`;
+            } else {
+                estimateField.value = '';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', calculateEstimate);
+        document.getElementById('acres').addEventListener('input', calculateEstimate);
+        document.getElementById('rate').addEventListener('input', calculateEstimate);
+        // Create Task API logic (copied from index.html)
+        const submitTaskBtn = document.getElementById('submit-task-btn');
+        if (submitTaskBtn) {
+            submitTaskBtn.addEventListener('click', async function() {
+                const form = document.getElementById('add-task-form');
+                const responseDiv = document.getElementById('add-task-response');
+                const acres = Number(form.acres.value);
+                const ratePerDay = 3.5;
+                const serviceDateRange = form.serviceDateRange.value;
+                const specificDateInput = form.specificDate.value;
+                let specificDate = specificDateInput ? new Date(specificDateInput) : null;
+                // Auto-assign specific date if not manually set
+                if (!specificDate && serviceDateRange && acres > 0) {
+                    const today = new Date();
+                    const dayOfWeek = today.getDay();
+                    const daysNeeded = Math.ceil(acres / ratePerDay);
+                    let baseDate;
+                    if (serviceDateRange === "this_week") {
+                        const daysUntilMonday = (1 - dayOfWeek + 7) % 7;
+                        baseDate = new Date(today);
+                        baseDate.setDate(today.getDate() + daysUntilMonday);
+                    } else if (serviceDateRange === "next_week") {
+                        const daysUntilNextMonday = (1 - dayOfWeek + 7) % 7 + 7;
+                        baseDate = new Date(today);
+                        baseDate.setDate(today.getDate() + daysUntilNextMonday);
+                    } else if (serviceDateRange === "in_2_weeks") {
+                        const daysUntilTwoMondays = (1 - dayOfWeek + 7) % 7 + 14;
+                        baseDate = new Date(today);
+                        baseDate.setDate(today.getDate() + daysUntilTwoMondays);
+                    }
+                    if (baseDate) {
+                        specificDate = new Date(baseDate);
+                        specificDate.setDate(baseDate.getDate() + (daysNeeded - 1));
+                        if (specificDate.getDay() > 5) {
+                            specificDate.setDate(specificDate.getDate() - (specificDate.getDay() - 5));
+                        }
+                        form.specificDate.value = specificDate.toISOString().split('T')[0];
+                    }
+                }
+                const task = {
+                    ownerId: form.ownerId.value.trim(),
+                    farmer: form.farmer.value.trim(),
+                    acres,
+                    estimate: form.estimate.value.trim(),
+                    serviceDateRange,
+                    specificDate: specificDate ? specificDate.toISOString() : undefined,
+                    status: form.status.value || 'pending',
+                    cooperative: form.cooperative.value.trim(),
+                    sector: form.sector?.value?.trim?.() || '',
+                    notes: form.notes.value.trim() || undefined
+                };
+                Object.keys(task).forEach(key => task[key] === undefined && delete task[key]);
+                try {
+                    responseDiv.textContent = 'Creating task...';
+                    
+                    const res = await fetch('https://qhvvm8l6f3.execute-api.us-east-1.amazonaws.com/tasks', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(task)
+                    });
+                    const data = await res.json();
+                    responseDiv.textContent = JSON.stringify(data, null, 2);
+                    if (res.ok) {
+                        form.reset();
+                        fetchTasks();
+                    }
+                } catch (err) {
+                    responseDiv.textContent = 'Error: ' + err;
+                }
+                
+                //for sms use another api for owner id - amazon sns - needs api?????
+
+            });
+        }
+        // Fetch and render tasks (match index.html logic)
+        async function fetchTasks() {
+            const idToken = localStorage.getItem("idToken");
+            if (!idToken) return;
+            let phoneNumber = null;
+            try {
+                const payload = JSON.parse(atob(idToken.split('.')[1]));
+                phoneNumber = payload.phone_number || payload["cognito:username"] || localStorage.getItem("phone_number");
+            } catch {}
+            if (!phoneNumber) return;
+            const container = document.getElementById('task-list');
+            container.innerHTML = '<div class="text-center text-gray-500">Loading tasks...</div>';
+            try {
+                // Changed API endpoint to QueryAllFunction
+                const res = await fetch("https://jbfwckcqza.execute-api.us-east-1.amazonaws.com/QueryAllFunction", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ ownerId: phoneNumber })
+                });
+                const data = await res.json();
+                if (!Array.isArray(data)) throw new Error('Invalid task data');
+                // Sort tasks by status: pending, assigned, completed, cancelled
+                const statusOrder = { pending: 0, assigned: 1, completed: 2, cancelled: 3 };
+                data.sort((a, b) => {
+                    const aStatus = a.status ? a.status.toLowerCase() : 'pending';
+                    const bStatus = b.status ? b.status.toLowerCase() : 'pending';
+                    return (statusOrder[aStatus] ?? 99) - (statusOrder[bStatus] ?? 99);
+                });
+                window.lastFetchedTasks = data; // Store tasks globally for deleteTask
+                container.innerHTML = '';
+                data.forEach(task => {
+                    // Status color box logic (match index.html)
+                    let status = (task.status || 'pending').toLowerCase();
+                    let statusColor = 'bg-gray-300 text-gray-700';
+                    if (status === 'pending') statusColor = 'bg-yellow-200 text-yellow-800';
+                    else if (status === 'assigned') statusColor = 'bg-blue-200 text-blue-800';
+                    else if (status === 'completed') statusColor = 'bg-green-200 text-green-800';
+                    else if (status === 'cancelled') statusColor = 'bg-red-200 text-red-800';
+                    const statusBox = `<span class="inline-block px-2 py-1 rounded text-xs font-semibold ${statusColor} ml-2">${status.charAt(0).toUpperCase() + status.slice(1)}</span>`;
+                    const taskRow = document.createElement('div');
+                    taskRow.className = 'p-4 border border-gray-200 rounded-lg bg-white flex items-center justify-between shadow-sm';
+                    taskRow.innerHTML = `
+                        <div>
+                            <div class="font-semibold text-gray-800 flex items-center mb-2">${task.ownerId || 'Untitled Task'}${statusBox}</div>
+                            <div class="text-sm text-gray-500 mb-2">Farmer: ${task.farmer || '-'} | Coop: ${task.cooperative || '-'} | Acres: ${task.acres ?? '-'} | Estimate: ${task.estimate || '-'}</div>
+                            <div class="flex flex-wrap gap-2 text-xs">
+                                <span class="inline-flex items-center bg-gray-50 text-gray-800 px-2 py-0.5 rounded"><i class='fas fa-hashtag mr-1'></i>ID: ${task.taskId || '-'}</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end gap-2">
+                            <select onchange="updateStatus('${task.taskId}', this.value)" class="text-sm border rounded px-2 py-1 mb-4">
+                                <option value="pending" ${status === 'pending' ? 'selected' : ''}>Pending</option>
+                                <option value="assigned" ${status === 'assigned' ? 'selected' : ''}>Assigned</option>
+                                <option value="completed" ${status === 'completed' ? 'selected' : ''}>Completed</option>
+                                <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                            </select>
+                            <button onclick="deleteTask('${task.taskId}')" class="text-red-600 hover:text-red-800 font-semibold">
+                                <i class="fas fa-trash-alt mr-1"></i>Delete
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(taskRow);
+                });
+            } catch (error) {
+                container.innerHTML = `<div class="text-red-500 text-center">Error loading tasks: ${error.message}</div>`;
+            }
+        }
+        // Replace deleteTask with logic from index.html
+        window.deleteTask = async function(taskId) {
+            if (!confirm('Are you sure you want to delete this task?')) return;
+            const idToken = localStorage.getItem("idToken");
+            if (!idToken) return;
+            // Find the task in the current list to get its ownerId
+            let ownerId = null;
+            if (window.lastFetchedTasks) {
+                const found = window.lastFetchedTasks.find(t => t.taskId === taskId);
+                if (found) ownerId = found.ownerId;
+            }
+            if (!ownerId) return;
+            try {
+                const res = await fetch(
+                    'https://qhvvm8l6f3.execute-api.us-east-1.amazonaws.com/tasks',
+                    {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ownerId, taskId })
+                    }
+                );
+                const data = await res.json();
+                if (res.ok) {
+                    fetchTasks();
+                } else {
+                    console.error('Error deleting task:', data);
+                }
+            } catch (err) {
+                console.error('Error deleting task:', err);
+            }
+        }
+        // Add updateStatus function to window
+        document.addEventListener('DOMContentLoaded', function() {
+            window.updateStatus = async function(taskId, newStatus) {
+                // Look up ownerId from lastFetchedTasks, just like deleteTask
+                let ownerId = null;
+                if (window.lastFetchedTasks) {
+                    const found = window.lastFetchedTasks.find(t => t.taskId === taskId);
+                    if (found) ownerId = found.ownerId;
+                }
+                if (!ownerId) return;
+                try {
+                    const res = await fetch('https://qhvvm8l6f3.execute-api.us-east-1.amazonaws.com/tasks', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ownerId, taskId, status: newStatus })
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                        fetchTasks();
+                    } else {
+                        console.error('Error updating status:', data);
+                    }
+                } catch (err) {
+                    console.error('Error updating status:', err);
+                }
+            }
+        });
+        // Fetch users and populate Operator # dropdown in Add Task Modal
+        async function populateOperatorDropdown() {
+            const operatorSelect = document.getElementById('ownerId');
+            if (!operatorSelect) return;
+            operatorSelect.innerHTML = '<option value="">Loading...</option>';
+            try {
+                const res = await fetch('https://3apntcgqij.execute-api.us-east-1.amazonaws.com/user', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                let users = await res.json();
+                if (!Array.isArray(users)) throw new Error('Invalid user data');
+                // Only show users with phone numbers
+                users = users.filter(u => u.attributes && u.attributes.phone_number);
+                operatorSelect.innerHTML = '';
+                users.forEach(user => {
+                    const phone = user.attributes.phone_number;
+                    const name = `${user.attributes.given_name || ''} ${user.attributes.family_name || ''}`.trim();
+                    const label = name ? `${name} (${phone})` : phone;
+                    const option = document.createElement('option');
+                    option.value = phone;
+                    option.textContent = label;
+                    operatorSelect.appendChild(option);
+                });
+            } catch (err) {
+                operatorSelect.innerHTML = '<option value="">Error loading users</option>';
+            }
+        }
+        // Populate on modal open
+        if (createTaskBtn && addTaskModal) {
+            createTaskBtn.addEventListener('click', function() {
+                populateOperatorDropdown();
+                addTaskModal.classList.remove('hidden');
+            });
+        }
+        document.addEventListener('DOMContentLoaded', fetchTasks);
+    </script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forgot Password</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+  <div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-md border border-gray-200">
+    <div class="mb-6 text-center">
+      <h1 class="text-2xl font-bold text-gray-800 mb-2 flex items-center justify-center"><i class="fas fa-project-diagram text-green-500 mr-2"></i>Cradle</h1>
+      <h2 class="text-lg font-semibold text-gray-700">Forgot Password</h2>
+    </div>
+    <form id="forgotForm" class="space-y-4">
+      <div>
+        <label for="phone_number" class="block text-gray-700 font-medium mb-1">Phone Number</label>
+        <input id="phone_number" name="phone_number" type="tel" required placeholder="+15555555555" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+      </div>
+      <div id="message" style="display:none;"></div>
+      <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-lg transition-colors">Send Code</button>
+    </form>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aws-sdk/2.1413.0/aws-sdk.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.0.0/dist/amazon-cognito-identity.min.js"></script>
+  <script type="module">
+    import { startForgotPassword, showMessage } from '../assets/js/cognito-auth.js';
+    document.getElementById('forgotForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const phone_number = document.getElementById('phone_number').value.trim();
+      startForgotPassword(phone_number, 
+        () => { window.location.href = 'reset.html?phone_number=' + encodeURIComponent(phone_number); },
+        err => showMessage(err.message || err)
+      );
+    };
+  </script>
+</body>
+</html>
